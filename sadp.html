@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Assignments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Assignment Set 1</h1>
+
+    <h2>Assignment No 1</h2>
+    <p>Q.1) Write a JAVA Program to implement built-in support (java.util.Observable) Weather station with members temperature, humidity, pressure and methods measurementsChanged(), setMeasurement(), getTemperature(), getHumidity(), getPressure()</p>
+    <pre><code>
+import java.util.Observable;
+import java.util.Observer;
+
+public class WeatherStation extends Observable {
+    private float temperature;
+    private float humidity;
+    private float pressure;
+
+    public void setMeasurements(float temperature, float humidity, float pressure) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        measurementsChanged();
+    }
+
+    private void measurementsChanged() {
+        setChanged();
+        notifyObservers();
+    }
+
+    public float getTemperature() {
+        return temperature;
+    }
+
+    public float getHumidity() {
+        return humidity;
+    }
+
+    public float getPressure() {
+        return pressure;
+    }
+
+    public static void main(String[] args) {
+        WeatherStation weatherStation = new WeatherStation();
+        Observer display = (o, arg) -> {
+            if (o instanceof WeatherStation) {
+                WeatherStation ws = (WeatherStation) o;
+                System.out.println("Current weather conditions:");
+                System.out.printf("Temperature: %.2f°F%n", ws.getTemperature());
+                System.out.printf("Humidity: %.2f%%%n", ws.getHumidity());
+                System.out.printf("Pressure: %.2f hPa%n", ws.getPressure());
+            }
+        };
+        weatherStation.addObserver(display);
+        weatherStation.setMeasurements(80, 65, 30.4f);
+        weatherStation.setMeasurements(82, 70, 29.2f);
+        weatherStation.setMeasurements(78, 90, 29.2f);
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 2</h2>
+    <p>Q.2) Write a Java Program to implement 1/0 Decorator for converting uppercase letters to lower case letters.</p>
+    <pre><code>
+interface Text {
+    String getContent();
+}
+
+class PlainText implements Text {
+    private String content;
+
+    public PlainText(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String getContent() {
+        return content;
+    }
+}
+
+class LowerCaseDecorator implements Text {
+    private Text text;
+
+    public LowerCaseDecorator(Text text) {
+        this.text = text;
+    }
+
+    @Override
+    public String getContent() {
+        return text.getContent().toLowerCase();
+    }
+}
+
+public class DecoratorPatternExample {
+    public static void main(String[] args) {
+        Text plainText = new PlainText("Hello World!");
+        Text lowerCaseText = new LowerCaseDecorator(plainText);
+
+        System.out.println("Original: " + plainText.getContent());
+        System.out.println("Lowercase: " + lowerCaseText.getContent());
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 3</h2>
+    <p>Q.3) Write a Java Program to implement Factory method for Pizza Store with createPizza(), orderPizza(), prepare(), Bake(), cut(), box(). Use this to create variety of pizza's like NyStyleCheese Pizza, ChicagoStyleCheesePizza etc</p>
+    <pre><code>
+abstract class Pizza {
+    String name;
+
+    void prepare() {
+        System.out.println("Preparing " + name);
+    }
+
+    void bake() {
+        System.out.println("Baking " + name);
+    }
+
+    void cut() {
+        System.out.println("Cutting " + name);
+    }
+
+    void box() {
+        System.out.println("Boxing " + name);
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class NYStyleCheesePizza extends Pizza {
+    public NYStyleCheesePizza() {
+        name = "New York Style Cheese Pizza";
+    }
+}
+
+class ChicagoStyleCheesePizza extends Pizza {
+    public ChicagoStyleCheesePizza() {
+        name = "Chicago Style Cheese Pizza";
+    }
+}
+
+abstract class PizzaStore {
+    public Pizza orderPizza(String type) {
+        Pizza pizza = createPizza(type);
+        pizza.prepare();
+        pizza.bake();
+        pizza.cut();
+        pizza.box();
+        return pizza;
+    }
+
+    protected abstract Pizza createPizza(String type);
+}
+
+class NYStylePizzaStore extends PizzaStore {
+    protected Pizza createPizza(String type) {
+        if (type.equals("cheese")) {
+            return new NYStyleCheesePizza();
+        }
+        return null;
+    }
+}
+
+class ChicagoStylePizzaStore extends PizzaStore {
+    protected Pizza createPizza(String type) {
+        if (type.equals("cheese")) {
+            return new ChicagoStyleCheesePizza();
+        }
+        return null;
+    }
+}
+
+public class PizzaFactoryMethod {
+    public static void main(String[] args) {
+        PizzaStore nyStore = new NYStylePizzaStore();
+        PizzaStore chicagoStore = new ChicagoStylePizzaStore();
+        Pizza pizza1 = nyStore.orderPizza("cheese");
+        System.out.println("Ethan ordered a " + pizza1.getName() + "\n");
+        Pizza pizza2 = chicagoStore.orderPizza("cheese");
+        System.out.println("Joel ordered a " + pizza2.getName() + "\n");
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 4</h2>
+    <p>Q.4) Write a Java Program to implement Singleton pattern for multithreading</p>
+    <pre><code>
+class Singleton {
+    private static volatile Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+}
+
+public class SingletonPatternExample {
+    public static void main(String[] args) {
+        Runnable task = () -> {
+            Singleton singleton = Singleton.getInstance();
+            singleton.showMessage();
+        };
+        
+        Thread thread1 = new Thread(task);
+        Thread thread2 = new Thread(task);
+        Thread thread3 = new Thread(task);
+        
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        
+        try {
+            thread1.join();
+            thread2.join();
+            thread3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 5</h2>
+    <p>Q.5) Write a Java Program to implement command pattern to test Remote Control.</p>
+    <pre><code>
+interface Command {
+    void execute();
+}
+
+class Light {
+    public void on() {
+        System.out.println("The light is ON");
+    }
+
+    public void off() {
+        System.out.println("The light is OFF");
+    }
+}
+
+class LightOnCommand implements Command {
+    private Light light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.on();
+    }
+}
+
+class LightOffCommand implements Command {
+    private Light light;
+
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.off();
+    }
+}
+
+class RemoteControl {
+    private Command command;
+
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    public void pressButton() {
+        command.execute();
+    }
+}
+
+public class CommandPatternDemo {
+    public static void main(String[] args) {
+        Light livingRoomLight = new Light();
+        Command lightOn = new LightOnCommand(livingRoomLight);
+        Command lightOff = new LightOffCommand(livingRoomLight);
+
+        RemoteControl remote = new RemoteControl();
+        remote.setCommand(lightOn);
+        remote.pressButton();
+        remote.setCommand(lightOff);
+        remote.pressButton();
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 6</h2>
+    <p>Q.6) Write a Java Program to implement undo command to test Ceiling fan.</p>
+    <pre><code>
+interface Command {
+    void execute();
+    void undo();
+}
+
+class CeilingFan {
+    private String location;
+    private String speed;
+
+    public CeilingFan(String location) {
+        this.location = location;
+        this.speed = "OFF";
+    }
+
+    public void setSpeed(String speed) {
+        this.speed = speed;
+        System.out.println(location + " Ceiling Fan is " + speed);
+    }
+
+    public String getSpeed() {
+        return speed;
+    }
+}
+
+class CeilingFanCommand implements Command {
+    private CeilingFan fan;
+    private String prevSpeed;
+
+    public CeilingFanCommand(CeilingFan fan) {
+        this.fan = fan;
+    }
+
+    @Override
+    public void execute() {
+        prevSpeed = fan.getSpeed();
+        fan.setSpeed("HIGH");
+    }
+
+    @Override
+    public void undo() {
+        fan.setSpeed(prevSpeed);
+    }
+}
+
+class RemoteControl {
+    private Command command;
+
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    public void pressButton() {
+        command.execute();
+    }
+
+    public void pressUndo() {
+        command.undo();
+    }
+}
+
+public class UndoCommandDemo {
+    public static void main(String[] args) {
+        CeilingFan livingRoomFan = new CeilingFan("Living Room");
+        CeilingFanCommand fanCommand = new CeilingFanCommand(livingRoomFan);
+        
+        RemoteControl remote = new RemoteControl();
+        remote.setCommand(fanCommand);
+        
+        remote.pressButton();  // Turn the fan on
+        remote.pressUndo();    // Undo the last command
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 7</h2>
+    <p>Q.7) Write a Java Program to implement Mediator pattern to test chat room.</p>
+    <pre><code>
+import java.util.ArrayList;
+import java.util.List;
+
+interface Mediator {
+    void send(String message, User user);
+}
+
+class ChatRoom implements Mediator {
+    private List<User> users;
+
+    public ChatRoom() {
+        users = new ArrayList<>();
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    @Override
+    public void send(String message, User user) {
+        for (User u : users) {
+            if (u != user) {
+                u.receive(message);
+            }
+        }
+    }
+}
+
+abstract class User {
+    protected Mediator mediator;
+    protected String name;
+
+    public User(Mediator mediator, String name) {
+        this.mediator = mediator;
+        this.name = name;
+    }
+
+    public abstract void send(String message);
+    public abstract void receive(String message);
+}
+
+class ChatUser extends User {
+    public ChatUser(Mediator mediator, String name) {
+        super(mediator, name);
+    }
+
+    @Override
+    public void send(String message) {
+        System.out.println(name + ": Sending message = " + message);
+        mediator.send(message, this);
+    }
+
+    @Override
+    public void receive(String message) {
+        System.out.println(name + ": Received message = " + message);
+    }
+}
+
+public class MediatorPatternDemo {
+    public static void main(String[] args) {
+        ChatRoom chatRoom = new ChatRoom();
+        User user1 = new ChatUser(chatRoom, "Alice");
+        User user2 = new ChatUser(chatRoom, "Bob");
+
+        chatRoom.addUser(user1);
+        chatRoom.addUser(user2);
+
+        user1.send("Hi Bob!");
+        user2.send("Hello Alice!");
+    }
+}
+    </code></pre>
+
+    <h2>Assignment No 8</h2>
+    <p>Q.8) Write a Java Program to implement state pattern to test ATM.</p>
+    <pre><code>
+interface ATMState {
+    void insertCard();
+    void ejectCard();
+    void enterPin(int pin);
+    void requestCash(int amount);
+}
+
+class ATMMachine implements ATMState {
+    private ATMState currentState;
+    private int cashAvailable;
+
+    public ATMMachine(int cashAvailable) {
+        this.cashAvailable = cashAvailable;
+        currentState = new NoCardState(this);
+    }
+
+    public void setState(ATMState state) {
+        currentState = state;
+    }
+
+    public void setCashAvailable(int cashAvailable) {
+        this.cashAvailable = cashAvailable;
+    }
+
+    @Override
+    public void insertCard() {
+        currentState.insertCard();
+    }
+
+    @Override
+    public void ejectCard() {
+        currentState.ejectCard();
+    }
+
+    @Override
+    public void enterPin(int pin) {
+        currentState.enterPin(pin);
+    }
+
+    @Override
+    public void requestCash(int amount) {
+        currentState.requestCash(amount);
+    }
+
+    public int getCashAvailable() {
+        return cashAvailable;
+    }
+
+    // States
+    class NoCardState implements ATMState {
+        private ATMMachine atmMachine;
+
+        public NoCardState(ATMMachine atmMachine) {
+            this.atmMachine = atmMachine;
+        }
+
+        @Override
+        public void insertCard() {
+            System.out.println("Card Inserted");
+            atmMachine.setState(atmMachine.new HasCardState(atmMachine));
+        }
+
+        @Override
+        public void ejectCard() {
+            System.out.println("No card inserted");
+        }
+
+        @Override
+        public void enterPin(int pin) {
+            System.out.println("No card inserted");
+        }
+
+        @Override
+        public void requestCash(int amount) {
+            System.out.println("No card inserted");
+        }
+    }
+
+    class HasCardState implements ATMState {
+        private ATMMachine atmMachine;
+
+        public HasCardState(ATMMachine atmMachine) {
+            this.atmMachine = atmMachine;
+        }
+
+        @Override
+        public void insertCard() {
+            System.out.println("Card already inserted");
+        }
+
+        @Override
+        public void ejectCard() {
+            System.out.println("Card Ejected");
+            atmMachine.setState(atmMachine.new NoCardState(atmMachine));
+        }
+
+        @Override
+        public void enterPin(int pin) {
+            System.out.println("Pin Entered");
+            atmMachine.setState(atmMachine.new HasPinState(atmMachine));
+        }
+
+        @Override
+        public void requestCash(int amount) {
+            System.out.println("Enter pin first");
+        }
+    }
+
+    class HasPinState implements ATMState {
+        private ATMMachine atmMachine;
+
+        public HasPinState(ATMMachine atmMachine) {
+            this.atmMachine = atmMachine;
+        }
+
+        @Override
+        public void insertCard() {
+            System.out.println("Card already inserted");
+        }
+
+        @Override
+        public void ejectCard() {
+            System.out.println("Card Ejected");
+            atmMachine.setState(atmMachine.new NoCardState(atmMachine));
+        }
+
+        @Override
+        public void enterPin(int pin) {
+            System.out.println("Pin already entered");
+        }
+
+        @Override
+        public void requestCash(int amount) {
+            if (atmMachine.getCashAvailable() >= amount) {
+                System.out.println("Cash Dispensed: " + amount);
+                atmMachine.setCashAvailable(atmMachine.getCashAvailable() - amount);
+                System.out.println("Remaining Cash: " + atmMachine.getCashAvailable());
+            } else {
+                System.out.println("Not enough cash available");
+            }
+        }
+    }
+}
+
+public class StatePatternDemo {
+    public static void main(String[] args) {
+        ATMMachine atmMachine = new ATMMachine(200);
+        atmMachine.insertCard();
+        atmMachine.enterPin(1234);
+        atmMachine.requestCash(100);
+        atmMachine.ejectCard();
+    }
+}
+    </code></pre>
+</body>
+</html>
